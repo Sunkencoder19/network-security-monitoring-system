@@ -1,5 +1,5 @@
 def parse_log_file(file_path):
-    log = []
+    logs = []
 
     with open(file_path, "r") as file:
         for line in file:
