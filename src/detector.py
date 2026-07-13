@@ -1,4 +1,4 @@
-def detect_suspicious_activity(logs):
+def detect_suspicious_activity(logs, config):
     failed_attempts = {}
 
     for log in logs:
@@ -11,7 +11,7 @@ def detect_suspicious_activity(logs):
     suspicious_ips = []
 
     for ip, count in failed_attempts.items():
-        if count > 5:
+        if count > config["failed_login_threshold"]:
             suspicious_ips.append(ip)
 
     return {
