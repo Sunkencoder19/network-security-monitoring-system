@@ -7,7 +7,19 @@ def generate_report(analysis, detection):
     print()
     print("===== Security Alerts =====")
     print("Total Alerts:", detection["total_alerts"])
-    print("Suspicious IPs:")
 
-    for ip in detection["suspicious_ips"]:
-        print(ip)
+    print()
+    print("Brute Force Detected:")
+    if detection["suspicious_ips"]:
+        for ip in detection["suspicious_ips"]:
+            print(ip)
+    else:
+        print("None")
+
+    print()
+    print("Successful Login After Brute Force:")
+    if detection["successful_after_bruteforce"]:
+        for ip in detection["successful_after_bruteforce"]:
+            print(ip)
+    else:
+        print("None")
