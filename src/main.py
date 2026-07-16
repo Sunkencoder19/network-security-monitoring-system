@@ -3,6 +3,7 @@ from analyzer import analyze_logs
 from detector import detect_suspicious_activity
 from reporter import generate_report
 import json
+from threat_intelligence import check_ip_reputation
 
 file_path = "data/sample_log.txt"
 
@@ -15,4 +16,13 @@ with open("config.json", "r") as file:
 
 detection = detect_suspicious_activity(logs, config)
 
-generate_report(analysis, detection)
+threat_data = {}
+
+for ip in detection["suspicious_ips"]:
+    threat_data[ip] = check_ip_reputation(ip)
+
+generate_report(
+    analysis,
+    detection,
+    threat_data
+)

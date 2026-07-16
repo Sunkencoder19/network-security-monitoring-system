@@ -1,4 +1,4 @@
-def generate_report(analysis, detection):
+def generate_report(analysis, detection, threat_data):
     print("===== Network Security Monitoring Report =====")
     print("Total Logs:", analysis["total_logs"])
     print("Failed Logins:", analysis["failed_logins"])
@@ -10,9 +10,17 @@ def generate_report(analysis, detection):
 
     print()
     print("Brute Force Detected:")
+
     if detection["suspicious_ips"]:
         for ip in detection["suspicious_ips"]:
             print(ip)
+            print("  Abuse Score :", threat_data[ip]["abuse_confidence_score"])
+            print("  Country     :", threat_data[ip]["country"])
+            print("  ISP         :", threat_data[ip]["isp"])
+            print("  Usage Type  :", threat_data[ip]["usage_type"])
+            print("  Reports     :", threat_data[ip]["total_reports"])
+            print("  Last Report :", threat_data[ip]["last_reported_at"])
+            print()
     else:
         print("None")
 
