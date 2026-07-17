@@ -11,7 +11,7 @@ def detect_suspicious_activity(logs, config):
     suspicious_ips = set()
 
     for ip, count in failed_attempts.items():
-        if count > config["failed_login_threshold"]:
+        if count >= config["failed_login_threshold"]:
             suspicious_ips.add(ip)
 
     successful_after_bruteforce = set()
@@ -25,5 +25,5 @@ def detect_suspicious_activity(logs, config):
     return {
     "suspicious_ips": suspicious_ips,
     "successful_after_bruteforce": successful_after_bruteforce,
-    "total_alerts": len(suspicious_ips) + len(successful_after_bruteforce)
+    "total_alerts": len(suspicious_ips)
 }
