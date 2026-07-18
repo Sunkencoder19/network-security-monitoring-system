@@ -2,258 +2,459 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Network Security Monitoring Report</title>
+<meta charset="UTF-8">
+<title>Network Security Monitoring Report</title>
 
-    <style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:Arial, Helvetica, sans-serif;
-        }
+<style>
 
-        body{
-            background:#f5f7fb;
-            padding:40px;
-            color:#1e293b;
-        }
+    :root{
+        --void:        #080b12;
+        --panel:        #0e131c;
+        --panel-raised: #131a26;
+        --line:         #1e2733;
+        --line-soft:    #171f2a;
 
-        .container{
-            max-width:1200px;
-            margin:auto;
-            background:white;
-            border-radius:15px;
-            overflow:hidden;
-            box-shadow:0 12px 30px rgba(0,0,0,0.08);
-        }
+        --cyan:         #2dd4ee;
+        --cyan-dim:     rgba(45,212,238,0.14);
+        --red:          #ff4d5e;
+        --red-dim:      rgba(255,77,94,0.12);
+        --amber:        #ffb020;
+        --amber-dim:    rgba(255,176,32,0.12);
+        --green:        #29e6a6;
+        --green-dim:    rgba(41,230,166,0.12);
 
-        /* ===========================
-            Header
-        =========================== */
+        --text:         #e7edf5;
+        --text-dim:     #8592a3;
+        --text-faint:   #4b5666;
 
-        .score-low {
-            color: #16a34a;
-            font-weight: bold;
-        }
+        --mono: 'JetBrains Mono', ui-monospace, monospace;
+        --sans: 'Inter', system-ui, sans-serif;
+    }
 
-        .score-medium {
-            color: #ea580c;
-            font-weight: bold;
-        }
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+    }
 
-        .score-high {
-            color: #dc2626;
-            font-weight: bold;
-        }
+    body{
+        font-family:var(--sans);
+        background:
+            radial-gradient(circle at 12% 8%, rgba(45,212,238,0.07), transparent 40%),
+            radial-gradient(circle at 88% 92%, rgba(255,77,94,0.05), transparent 40%),
+            var(--void);
+        background-attachment:fixed;
+        padding:48px 24px;
+        color:var(--text);
+        line-height:1.5;
+    }
 
-        .report-id {
-            margin-top: 8px;
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.85);
-            font-weight: 500;
-        }
+    /* faint grid texture behind everything */
+    body::before{
+        content:"";
+        position:fixed;
+        inset:0;
+        background-image:
+            linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+        background-size:32px 32px;
+        pointer-events:none;
+        z-index:0;
+    }
 
-        .header{
+    .container{
+        position:relative;
+        z-index:1;
+        max-width:1160px;
+        margin:auto;
+        background:var(--panel);
+        border:1px solid var(--line);
+        border-radius:10px;
+        overflow:hidden;
+        box-shadow:
+            0 30px 80px rgba(0,0,0,0.55),
+            0 0 0 1px rgba(45,212,238,0.04);
+    }
 
-            background:linear-gradient(135deg,#2563eb,#1d4ed8);
-            color:white;
-            padding:40px;
-            text-align:center;
+    /* ===========================
+        Terminal chrome bar
+    =========================== */
 
-        }
+    .chrome{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        padding:12px 20px;
+        background:var(--void);
+        border-bottom:1px solid var(--line);
+    }
 
-        .header h1{
+    .chrome span{
+        width:10px;
+        height:10px;
+        border-radius:50%;
+        display:inline-block;
+        background:var(--line);
+    }
 
-            font-size:38px;
-            margin-bottom:10px;
+    .chrome span:nth-child(1){ background:#ff5f57; }
+    .chrome span:nth-child(2){ background:#febc2e; }
+    .chrome span:nth-child(3){ background:#28c840; }
 
-        }
+    .chrome-label{
+        margin-left:10px;
+        font-family:var(--mono);
+        font-size:12px;
+        letter-spacing:0.06em;
+        color:var(--text-faint);
+    }
 
-        .header p{
+    /* ===========================
+        Header
+    =========================== */
 
-            opacity:0.9;
-            font-size:17px;
+    .header{
+        position:relative;
+        padding:44px 40px 36px;
+        background:
+            linear-gradient(180deg, rgba(45,212,238,0.06), transparent 70%),
+            var(--panel);
+        border-bottom:1px solid var(--line);
+        overflow:hidden;
+    }
 
-        }
+    .header::after{
+        content:"";
+        position:absolute;
+        left:0; right:0; bottom:0;
+        height:2px;
+        background:linear-gradient(90deg, transparent, var(--cyan), transparent);
+        opacity:0.7;
+    }
 
-        /* ===========================
-            Risk Banner
-        =========================== */
+    .eyebrow{
+        font-family:var(--mono);
+        font-size:12px;
+        letter-spacing:0.18em;
+        text-transform:uppercase;
+        color:var(--cyan);
+        display:flex;
+        align-items:center;
+        gap:10px;
+        margin-bottom:16px;
+    }
 
-        .risk{
+    .eyebrow .dot{
+        width:7px;
+        height:7px;
+        border-radius:50%;
+        background:var(--cyan);
+        box-shadow:0 0 8px var(--cyan);
+        animation:pulse 2s infinite;
+    }
 
-            background:#fee2e2;
-            color:#b91c1c;
-            padding:18px;
-            text-align:center;
-            font-size:18px;
-            font-weight:bold;
+    .header h1{
+        font-family:var(--mono);
+        font-size:30px;
+        font-weight:700;
+        letter-spacing:-0.01em;
+        color:var(--text);
+    }
 
-        }
+    .header p.timestamp{
+        margin-top:10px;
+        font-family:var(--mono);
+        font-size:13px;
+        color:var(--text-dim);
+    }
 
-        /* ===========================
-            Main
-        =========================== */
+    .report-id{
+        margin-top:6px;
+        font-family:var(--mono);
+        font-size:13px;
+        color:var(--text-faint);
+    }
 
-        .content{
+    .report-id::before{
+        content:"> ";
+        color:var(--cyan);
+    }
 
-            padding:35px;
+    /* ===========================
+        Risk Banner
+    =========================== */
 
-        }
+    .risk{
+        position:relative;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:12px;
+        background:var(--red-dim);
+        border-top:1px solid rgba(255,77,94,0.35);
+        border-bottom:1px solid rgba(255,77,94,0.35);
+        color:#ffb3ba;
+        padding:16px 20px;
+        text-align:center;
+        font-family:var(--mono);
+        font-size:14px;
+        font-weight:600;
+        letter-spacing:0.02em;
+    }
 
-        h2{
+    .risk::before{
+        content:"";
+        width:8px;
+        height:8px;
+        border-radius:50%;
+        background:var(--red);
+        box-shadow:0 0 10px var(--red);
+        animation:pulse 1.6s infinite;
+        flex-shrink:0;
+    }
 
-            color:#1d4ed8;
-            margin-top:40px;
-            margin-bottom:20px;
-            border-left:6px solid #2563eb;
-            padding-left:15px;
+    @keyframes pulse{
+        0%, 100% { opacity:1; }
+        50% { opacity:0.35; }
+    }
 
-        }
+    /* ===========================
+        Main
+    =========================== */
 
-        /* ===========================
-            Dashboard Cards
-        =========================== */
+    .content{
+        padding:40px;
+    }
 
+    h2{
+        font-family:var(--mono);
+        font-size:13px;
+        font-weight:700;
+        letter-spacing:0.14em;
+        text-transform:uppercase;
+        color:var(--text-dim);
+        margin-top:56px;
+        margin-bottom:18px;
+        padding-bottom:12px;
+        border-bottom:1px solid var(--line);
+        display:flex;
+        align-items:center;
+        gap:10px;
+    }
+
+    h2::before{
+        content:"//";
+        color:var(--cyan);
+        font-weight:700;
+    }
+
+    .content > h2:first-of-type{
+        margin-top:0;
+    }
+
+    /* ===========================
+        Dashboard Cards
+    =========================== */
+
+    .cards{
+        display:grid;
+        grid-template-columns:repeat(4,1fr);
+        gap:16px;
+        margin-top:8px;
+        margin-bottom:8px;
+    }
+
+    .card{
+        position:relative;
+        border-radius:8px;
+        padding:22px 20px;
+        background:var(--panel-raised);
+        border:1px solid var(--line);
+        border-left:3px solid var(--text-faint);
+        color:var(--text);
+        text-align:left;
+        transition:transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .card:hover{
+        transform:translateY(-2px);
+    }
+
+    .card h3{
+        font-family:var(--sans);
+        font-size:12px;
+        font-weight:600;
+        letter-spacing:0.04em;
+        text-transform:uppercase;
+        color:var(--text-dim);
+        margin-bottom:14px;
+    }
+
+    .card p{
+        font-family:var(--mono);
+        font-size:32px;
+        font-weight:700;
+        letter-spacing:-0.01em;
+    }
+
+    .card.blue{ border-left-color:var(--cyan); }
+    .card.blue p{ color:var(--cyan); }
+    .card.blue:hover{ box-shadow:0 8px 24px var(--cyan-dim); }
+
+    .card.red{ border-left-color:var(--red); }
+    .card.red p{ color:var(--red); }
+    .card.red:hover{ box-shadow:0 8px 24px var(--red-dim); }
+
+    .card.green{ border-left-color:var(--green); }
+    .card.green p{ color:var(--green); }
+    .card.green:hover{ box-shadow:0 8px 24px var(--green-dim); }
+
+    .card.orange{ border-left-color:var(--amber); }
+    .card.orange p{ color:var(--amber); }
+    .card.orange:hover{ box-shadow:0 8px 24px var(--amber-dim); }
+
+    /* ===========================
+        Summary
+    =========================== */
+
+    .summary{
+        margin-bottom:14px;
+    }
+
+    .summary p{
+        background:var(--panel-raised);
+        border:1px solid var(--line);
+        border-radius:8px;
+        padding:20px 22px;
+        color:var(--text-dim);
+        font-size:14.5px;
+    }
+
+    .summary strong{
+        color:var(--text);
+        font-family:var(--mono);
+    }
+
+    /* ===========================
+        Tables
+    =========================== */
+
+    table{
+        width:100%;
+        border-collapse:collapse;
+        margin-top:4px;
+        overflow:hidden;
+        border-radius:8px;
+        border:1px solid var(--line);
+        font-size:13.5px;
+    }
+
+    thead{
+        background:var(--panel-raised);
+    }
+
+    th{
+        padding:13px 16px;
+        text-align:left;
+        font-family:var(--mono);
+        font-size:11px;
+        font-weight:600;
+        letter-spacing:0.08em;
+        text-transform:uppercase;
+        color:var(--cyan);
+        border-bottom:1px solid var(--line);
+    }
+
+    td{
+        padding:13px 16px;
+        border-bottom:1px solid var(--line-soft);
+        color:var(--text-dim);
+        font-family:var(--mono);
+        font-size:13px;
+    }
+
+    tbody tr:nth-child(even){
+        background:rgba(255,255,255,0.015);
+    }
+
+    tbody tr:hover{
+        background:var(--cyan-dim);
+    }
+
+    tbody tr:last-child td{
+        border-bottom:none;
+    }
+
+    td:first-child{
+        color:var(--text);
+        font-weight:500;
+    }
+
+    .score-low, .score-medium, .score-high{
+        font-weight:700;
+        font-family:var(--mono);
+    }
+
+    .score-low{ color:var(--green); }
+    .score-low::before{ content:"● "; }
+
+    .score-medium{ color:var(--amber); }
+    .score-medium::before{ content:"● "; }
+
+    .score-high{ color:var(--red); }
+    .score-high::before{ content:"● "; }
+
+    /* empty-state fallback if a table has no rows */
+    table tbody:empty::after{
+        content:"No entries recorded for this period.";
+    }
+
+    /* ===========================
+        Footer
+    =========================== */
+
+    .footer{
+        margin-top:56px;
+        border-top:1px solid var(--line);
+        padding-top:22px;
+        text-align:center;
+        color:var(--text-faint);
+        font-family:var(--mono);
+        font-size:12px;
+        letter-spacing:0.04em;
+    }
+
+    .footer strong{
+        color:var(--text-dim);
+        font-weight:600;
+    }
+
+    /* ===========================
+        Responsive
+    =========================== */
+
+    @media(max-width:900px){
         .cards{
-
-            display:grid;
-            grid-template-columns:repeat(4,1fr);
-            gap:20px;
-            margin-top:20px;
-            margin-bottom:35px;
-
+            grid-template-columns:repeat(2,1fr);
         }
+    }
 
-        .card{
-
-            border-radius:12px;
-            padding:25px;
-            color:white;
-            text-align:center;
-            box-shadow:0 5px 15px rgba(0,0,0,0.12);
-
+    @media(max-width:600px){
+        body{ padding:16px; }
+        .header{ padding:32px 24px 28px; }
+        .content{ padding:24px; }
+        .cards{
+            grid-template-columns:1fr;
         }
+        table{ font-size:12px; }
+        th, td{ padding:10px 12px; }
+    }
 
-        .blue{
-            background:#2563eb;
-        }
-
-        .red{
-            background:#ef4444;
-        }
-
-        .green{
-            background:#22c55e;
-        }
-
-        .orange{
-            background:#f59e0b;
-        }
-
-        .card h3{
-
-            font-size:16px;
-            margin-bottom:15px;
-
-        }
-
-        .card p{
-
-            font-size:36px;
-            font-weight:bold;
-
-        }
-
-        /* ===========================
-            Tables
-        =========================== */
-
-        table{
-
-            width:100%;
-            border-collapse:collapse;
-            margin-top:15px;
-            overflow:hidden;
-            border-radius:10px;
-
-        }
-
-        thead{
-
-            background:#2563eb;
-            color:white;
-
-        }
-
-        th{
-
-            padding:15px;
-            text-align:left;
-
-        }
-
-        td{
-
-            padding:14px;
-            border-bottom:1px solid #e2e8f0;
-
-        }
-
-        tbody tr:nth-child(even){
-
-            background:#f8fafc;
-
-        }
-
-        tbody tr:hover{
-
-            background:#dbeafe;
-
-        }
-
-        /* ===========================
-            Footer
-        =========================== */
-
-        .footer{
-
-            margin-top:60px;
-            border-top:1px solid #e2e8f0;
-            padding-top:25px;
-            text-align:center;
-            color:#64748b;
-            font-size:14px;
-
-        }
-
-        /* ===========================
-            Responsive
-        =========================== */
-
-        @media(max-width:900px){
-
-            .cards{
-
-                grid-template-columns:repeat(2,1fr);
-
-            }
-
-        }
-
-        @media(max-width:600px){
-
-            .cards{
-
-                grid-template-columns:1fr;
-
-            }
-
-        }
-
-    </style>
+</style>
 
 </head>
 
@@ -261,16 +462,22 @@
 
 <div class="container">
 
+    <div class="chrome">
+        <span></span><span></span><span></span>
+        <span class="chrome-label">nsm@monitor:~/reports</span>
+    </div>
+
     <div class="header">
+
+        <div class="eyebrow"><span class="dot"></span>Live Monitoring Report</div>
 
         <h1>Network Security Monitoring Report</h1>
 
-        <p>
-            Generated on 18 July 2026 12:09 AM
-            
+        <p class="timestamp">
+            Generated on 18 July 2026 11:07 PM
         </p>
 
-        <p class="report-id">Report ID: NSM-20260718-000947</p>
+        <p class="report-id">NSM-20260718-230707</p>
 
     </div>
 

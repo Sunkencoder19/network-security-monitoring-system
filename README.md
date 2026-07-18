@@ -1,200 +1,258 @@
-# Network Security Monitoring System
+# 🛡️ Network Security Monitoring System
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue)
-![Version](https://img.shields.io/badge/Version-1.0-success)
-![Status](https://img.shields.io/badge/Status-Active-brightgreen)
+![Version](https://img.shields.io/badge/Version-2.0-success)
+![Status](https://img.shields.io/badge/Status-Stable-brightgreen)
 
-## Overview
+A Python-based **Network Security Monitoring System** that analyzes authentication logs, detects suspicious authentication activity, enriches suspicious IPs using AbuseIPDB, and generates interactive HTML security reports.
 
-The Network Security Monitoring System is a Python-based offline log analysis tool designed to analyze authentication logs and identify suspicious login activity. The application parses network log files, extracts useful security metrics, detects potential brute-force attacks, and generates a structured security report.
+<p align="center">
+  <img src="screenshots/dashboard.png" alt="Network Security Monitoring Dashboard" width="1300">
+</p>
 
-The project follows a modular architecture with separate components for parsing, analysis, threat detection, and reporting, making it easier to maintain, extend, and test while serving as a foundation for more advanced cybersecurity projects.
+## Table of Contents
 
-## Current Status
+- [Why This Project](#why-this-project)
+- [Key Capabilities](#key-capabilities)
+- [System Architecture](#system-architecture)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Configuration](#configuration)
+- [Running the Application](#running-the-application)
+- [Tech Stack](#tech-stack)
+- [Learning Outcomes](#learning-outcomes)
+- [Author](#author)
 
-**Version:** 1.0
+## Why This Project?
 
-✔ Core monitoring pipeline completed
+Authentication logs contain valuable security information, but manually analyzing hundreds of log entries to identify suspicious activity is both time-consuming and error-prone. Security analysts need tools that can quickly identify potential threats, summarize security events, and present findings in a clear and actionable format.
 
-✔ Log parsing
-
-✔ Security analysis
-
-✔ Brute-force attack detection
-
-✔ Report generation
+This project was built to simulate a simplified Security Operations Center (SOC) workflow by automating log analysis, detecting brute-force attacks, enriching suspicious IP addresses with threat intelligence from AbuseIPDB, and generating an interactive HTML security report for investigation.
 
 
-## Features
+##  Key Capabilities
 
-- Parse authentication log files.
-- Extract useful security metrics such as:
-  - Total log entries
-  - Failed login attempts
-  - Unique IP addresses
-- Detect brute-force attacks based on configurable failed login thresholds.
-- Generate a structured security report.
-- Modular architecture with separate components for parsing, analysis, detection, reporting, and application orchestration.
+###  Authentication Log Analysis
+Parses authentication logs and extracts key security metrics, including total events, failed login attempts, and unique IP addresses to provide a clear overview of system activity.
 
-## Project Architecture
+###  Brute-Force Attack Detection
+Identifies IP addresses that exceed configurable failed login thresholds, helping detect potential brute-force attacks before they succeed.
+
+###  Threat Intelligence Integration
+Enriches suspicious IP addresses with real-time reputation data from **AbuseIPDB**, including abuse confidence score, ISP, country, usage type, and historical abuse reports.
+
+###  Successful Login After Brute Force Detection
+Detects authentication attempts where an attacker successfully logs in after multiple failed attempts, highlighting high-risk security events that require immediate attention.
+
+###  HTML Security Reporting
+Generates a professional HTML security report featuring an executive summary, security metrics, threat intelligence, detection results, and a clean dashboard-style interface.
+
+###  Configurable Detection Engine
+Supports configurable detection thresholds through a JSON configuration file, allowing security rules to be adjusted without modifying the source code.
+
+###  Robust Error Handling
+Handles missing files, malformed log entries, invalid configuration files, network failures, and API errors gracefully to ensure reliable execution.
+
+
+## System Architecture
+
+The application follows a modular pipeline where each component performs a single responsibility. Authentication logs move through multiple processing stages before being transformed into a structured HTML security report.
+
 ```text
-               +----------------------+
-               |   Authentication     |
-               |      Log File        |
-               +----------+-----------+
-                          |
-                          v
-                 +----------------+
-                 |    Parser      |
-                 +----------------+
-                          |
-                          v
-                 +----------------+
-                 |   Analyzer     |
-                 +----------------+
-                          |
-                          |
-          +---------------+---------------+
-          |                               |
-          v                               v
-+----------------------+        +----------------------+
-| Security Statistics  |        | Threat Detection     |
-+----------------------+        +----------------------+
-          \                               /
-           \                             /
-            \                           /
-             +-------------------------+
-             |        Reporter         |
-             +-------------------------+
-                         |
-                         v
-              Network Security Report
+                    Authentication Logs
+                            │
+                            ▼
+                     ┌─────────────┐
+                     │   Parser    │
+                     └──────┬──────┘
+                            │
+                            ▼
+                     ┌─────────────┐
+                     │  Analyzer   │
+                     └──────┬──────┘
+                            │
+             ┌──────────────┴──────────────┐
+             ▼                             ▼
+      ┌─────────────┐              ┌─────────────────┐
+      │  Detector   │              │ Threat Intel    │
+      └──────┬──────┘              └────────┬────────┘
+             └──────────────┬───────────────┘
+                            ▼
+                  ┌────────────────────┐
+                  │ Report Generator   │
+                  └─────────┬──────────┘
+                            ▼
+             Interactive HTML Security Report
 ```
 
+### Pipeline
+
+1. **Parser** reads raw authentication logs and converts each entry into structured data.
+2. **Analyzer** calculates security statistics such as failed logins, total events, and unique IP addresses.
+3. **Detector** identifies suspicious activity using configurable detection rules.
+4. **Threat Intelligence** enriches suspicious IP addresses using AbuseIPDB.
+5. **Report Generator** combines all collected information into a structured HTML security report.
+
+
 ## Project Structure
+
 ```text
 network-security-monitoring-system/
 │
 ├── data/
-│   └── sample_log.txt          # Sample authentication log file
+│   └── sample_log.txt
+│
+├── reports/
+│   └── security_report.html
+│
+├── screenshots/
 │
 ├── src/
-│   ├── parser.py               # Parses raw log entries
-│   ├── analyzer.py             # Calculates security statistics
-│   ├── detector.py             # Detects suspicious login activity
-│   ├── reporter.py             # Generates the security report
-│   └── main.py                 # Entry point of the application
+│   ├── analyzer.py
+│   ├── detector.py
+│   ├── main.py
+│   ├── parser.py
+│   ├── report_generator.py
+│   └── threat_intelligence.py
 │
-├── README.md                   # Project documentation
-├── requirements.txt            # Project dependencies
-└── .gitignore                  # Files ignored by Git
+├── templates/
+│   └── report_template.html
+│
+├── config.json
+├── .env.example
+├── requirements.txt
+├── README.md
+└── .gitignore
 ```
 
+### Directory Overview
 
-## Installation
+| Directory / File | Purpose |
+|------------------|---------|
+| `src/` | Contains the core application modules responsible for parsing logs, analyzing security events, detecting suspicious activity, enriching IPs with threat intelligence, and generating HTML reports. |
+| `data/` | Stores sample authentication logs used for analysis. |
+| `templates/` | Contains the HTML template used to generate security reports. |
+| `reports/` | Stores generated HTML security reports. |
+| `screenshots/` | Contains images used in the project documentation. |
+| `config.json` | Stores configurable application settings such as detection thresholds. |
+| `.env.example` | Template for configuring the AbuseIPDB API key. |
 
-### 1. Clone the repository
+
+## Getting Started
+
+### Prerequisites
+
+Before running the project, ensure you have:
+
+- Python 3.10 or later
+- Git
+- An AbuseIPDB API key
+
+---
+
+### Clone the Repository
 
 ```bash
 git clone https://github.com/Sunkencoder19/network-security-monitoring-system.git
-```
-
-### 2. Navigate to the project directory
-
-```bash
 cd network-security-monitoring-system
 ```
 
-### 3. Create a virtual environment
+---
+
+### Create a Virtual Environment
+
+**macOS / Linux**
 
 ```bash
 python3 -m venv .venv
-```
-
-### 4. Activate the virtual environment
-
-**macOS/Linux**
-
-```bash
 source .venv/bin/activate
 ```
 
 **Windows**
 
 ```bash
+python -m venv .venv
 .venv\Scripts\activate
 ```
 
-### 5. Install the dependencies
+---
+
+### Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
-> **Note:** Version 1 uses only Python's standard library, so `requirements.txt` is currently empty. It is included to support future versions of the project that introduce external dependencies.
 
-## Usage
+## Configuration
 
-Run the application using:
+The application uses two configuration files:
+
+### `.env`
+
+Create a `.env` file in the project root and add your AbuseIPDB API key:
+
+```env
+ABUSEIPDB_API_KEY=your_api_key_here
+```
+
+You can obtain a free API key by creating an account at AbuseIPDB.
+
+---
+
+### `config.json`
+
+Detection rules can be customized without modifying the source code.
+
+Example:
+
+```json
+{
+    "failed_login_threshold": 5
+}
+```
+
+## Running the Application
+
+Execute the application using:
 
 ```bash
-python3 src/main.py
+python src/main.py
 ```
 
-The application will:
+After execution, the application will:
 
-1. Read the authentication log file.
-2. Parse the log entries.
-3. Analyze login statistics.
-4. Detect suspicious login activity.
-5. Generate a security report in the terminal.
+1. Parse authentication logs.
+2. Analyze security events.
+3. Detect suspicious activity.
+4. Retrieve threat intelligence for suspicious IP addresses.
+5. Generate an interactive HTML security report.
 
-## Sample Input
-
-Example log entries:
+The generated report is saved in:
 
 ```text
-10:15:21 192.168.1.10 LOGIN_FAILED
-10:15:30 192.168.1.10 LOGIN_FAILED
-10:15:45 192.168.1.10 LOGIN_SUCCESS
-10:16:00 192.168.1.20 LOGIN_FAILED
-10:16:20 192.168.1.30 LOGIN_SUCCESS
-10:16:45 192.168.1.10 LOGIN_FAILED
-10:17:00 192.168.1.10 LOGIN_FAILED
-10:17:15 192.168.1.10 LOGIN_FAILED
-10:17:30 192.168.1.10 LOGIN_FAILED
+reports/security_report.html
 ```
 
-## Sample Output
-
-```text
-===== Network Security Monitoring Report =====
-Total Logs: 9
-Failed Logins: 7
-Unique IPs: 3
-
-===== Security Alerts =====
-Total Alerts: 1
-Suspicious IPs:
-192.168.1.10
-```
-
-## Technologies Used
+## Tech Stack
 
 - Python 3
-- Git & GitHub
-- Python Standard Library
+- Requests
+- HTML5
+- CSS3
+- AbuseIPDB API
+- Git
+- GitHub
 
-## Future Improvements (Version 2)
+## Learning Outcomes
 
-The next version of this project aims to extend the monitoring system with more advanced cybersecurity and software engineering features, including:
+This project strengthened my understanding of:
 
-- Threat intelligence integration using public IP reputation APIs.
-- Multiple attack detection rules.
-- Professional HTML report generation.
-- Command-line interface (CLI) support.
-- Configurable detection thresholds using a configuration file.
-- Improved error handling and input validation.
-- Unit testing for core modules.
+- Log parsing and structured data processing
+- Detection of suspicious authentication activity
+- Threat intelligence integration using external APIs
+- Modular software architecture
+- HTML report generation
+- Secure handling of environment variables and API keys
 
 ## Author
 
@@ -202,4 +260,6 @@ The next version of this project aims to extend the monitoring system with more 
 
 Computer Engineering Student
 
-GitHub: [Sunkencoder19](https://github.com/Sunkencoder19)
+Interested in Cybersecurity, Network Security, and Software Engineering.
+
+- GitHub: https://github.com/Sunkencoder19
